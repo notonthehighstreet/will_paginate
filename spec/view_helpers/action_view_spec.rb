@@ -307,6 +307,54 @@ describe WillPaginate::ActionView do
     }.should raise_error(ActionView::TemplateError, /@developers/)
   end
 
+  describe '#pagination_link_tags' do
+    let(:helper) {
+      helper = Class.new {
+        attr_reader :controller
+        include ActionView::Helpers::UrlHelper
+        include Routes.url_helpers
+        include WillPaginate::ActionView
+      }.new
+      helper.default_url_options[:controller] = 'dummy'
+      helper.default_url_options[:host] = 'example.com'
+      helper }
+    let(:collection) { (1..30).to_a }
+    let(:page_one) { collection.paginate(:page => 1, :per_page => 10)}
+    let(:page_two) { collection.paginate(:page => 2, :per_page =>10)}
+    let(:page_three) { collection.paginate(:page => 3, :per_page => 10)}
+
+    context 'the first page' do
+      subject { helper.pagination_link_tags page_one }
+      it { should include(
+        '<link rel="next" href="http://example.com/dummy/page/2" />') }
+      it { should_not match /rel="prev"/ }
+    end
+
+    context 'the middle page' do
+      subject { helper.pagination_link_tags page_two }
+      it { should include(
+        '<link rel="prev" href="http://example.com/dummy/page/1" />') }
+      it { should include(
+        '<link rel="next" href="http://example.com/dummy/page/3" />') }
+    end
+
+    context 'the last page' do
+      subject { helper.pagination_link_tags page_three }
+      it { should include(
+        '<link rel="prev" href="http://example.com/dummy/page/2" />') }
+      it { should_not match /rel="next"/ }
+    end
+
+    context 'with optional parameters for searches' do
+      subject { helper.pagination_link_tags(
+        page_three, { search: 'term', boolean_param: true }) }
+      it { should include(
+        '<link rel="prev" href="http://example.com/dummy/page/2?boolean_param=true&search=term" />'
+        )
+      }
+    end
+  end
+
   ## i18n
 
   it "is able to translate previous/next labels" do

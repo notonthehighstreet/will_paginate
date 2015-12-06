@@ -96,6 +96,41 @@ module WillPaginate
       output
     end
 
+    # Returns HTML representing link ref tags links for a
+    # WillPaginate::Collection-like object.
+    #
+    # A port of something that is already in Kaminari:
+    # https://github.com/amatsuda/kaminari/pull/200/files
+    #
+    # ==== Examples
+    # Basic usage:
+    #
+    #   In head:
+    #   <head>
+    #     <title>My Website</title>
+    #     <%= yield :head %>
+    #   </head>
+    #
+    #   Somewhere in body:
+    #   <% content_for :head do %>
+    #     <%= pagination_link_tags @items %>
+    #   <% end %>
+    #
+    #   #-> <link rel="next" href="http://example.com/items/page/3" />
+    #       <link rel="prev" href="http://example.com/items/page/1" />
+    #
+    def pagination_link_tags(collection, params = {})
+      output = []
+      link = '<link rel="%s" href="%s" />'.freeze
+      output << link % ['prev'.freeze,
+        url_for(params.merge(page: collection.previous_page, only_path: false)
+        )] if collection.previous_page
+      output << link % ['next'.freeze,
+        url_for(params.merge(page: collection.next_page, only_path: false))
+        ] if collection.next_page
+      output.join('\n'.freeze).html_safe
+    end
+
     # Renders a message containing number of displayed vs. total entries.
     #
     #   <%= page_entries_info @posts %>
