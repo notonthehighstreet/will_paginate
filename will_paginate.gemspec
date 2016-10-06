@@ -1,22 +1,30 @@
+# encoding: utf-8
+require 'rbconfig'
+require File.expand_path('../lib/will_paginate/version', __FILE__)
+
 Gem::Specification.new do |s|
   s.name    = 'will_paginate'
-  s.version = '2.3.5'
-  s.date    = '2008-10-07'
+  s.version = WillPaginate::VERSION::STRING
   
-  s.summary = "Most awesome pagination solution for Rails"
-  s.description = "The will_paginate library provides a simple, yet powerful and extensible API for ActiveRecord pagination and rendering of pagination links in ActionView templates."
+  s.summary = "Pagination plugin for web frameworks and other apps"
+  s.description = "will_paginate provides a simple API for performing paginated queries with Active Record, DataMapper and Sequel, and includes helpers for rendering pagination links in Rails, Sinatra and Merb web apps."
   
-  s.authors  = ['Mislav Marohnić', 'PJ Hyett']
+  s.authors  = ['Mislav Marohnić']
   s.email    = 'mislav.marohnic@gmail.com'
-  s.homepage = 'http://github.com/mislav/will_paginate/wikis'
+  s.homepage = 'https://github.com/mislav/will_paginate/wiki'
+  s.license  = 'MIT'
   
-  s.has_rdoc = true
-  s.rdoc_options = ['--main', 'README.rdoc']
-  s.rdoc_options << '--inline-source' << '--charset=UTF-8'
-  s.extra_rdoc_files = ['README.rdoc', 'LICENSE', 'CHANGELOG.rdoc']
+  s.rdoc_options = ['--main', 'README.md', '--charset=UTF-8']
+  s.extra_rdoc_files = ['README.md', 'LICENSE']
   
-  s.add_dependency 'activesupport', ['>= 1.4.4']
-  
-  s.files = %w(CHANGELOG.rdoc LICENSE README.rdoc Rakefile examples examples/apple-circle.gif examples/index.haml examples/index.html examples/pagination.css examples/pagination.sass init.rb lib lib/will_paginate lib/will_paginate.rb lib/will_paginate/array.rb lib/will_paginate/collection.rb lib/will_paginate/core_ext.rb lib/will_paginate/finder.rb lib/will_paginate/named_scope.rb lib/will_paginate/named_scope_patch.rb lib/will_paginate/version.rb lib/will_paginate/view_helpers.rb test test/boot.rb test/collection_test.rb test/console test/database.yml test/finder_test.rb test/fixtures test/fixtures/admin.rb test/fixtures/developer.rb test/fixtures/developers_projects.yml test/fixtures/project.rb test/fixtures/projects.yml test/fixtures/replies.yml test/fixtures/reply.rb test/fixtures/schema.rb test/fixtures/topic.rb test/fixtures/topics.yml test/fixtures/user.rb test/fixtures/users.yml test/helper.rb test/lib test/lib/activerecord_test_case.rb test/lib/activerecord_test_connector.rb test/lib/load_fixtures.rb test/lib/view_test_process.rb test/tasks.rake test/view_test.rb)
-  s.test_files = %w(test/boot.rb test/collection_test.rb test/console test/database.yml test/finder_test.rb test/fixtures test/fixtures/admin.rb test/fixtures/developer.rb test/fixtures/developers_projects.yml test/fixtures/project.rb test/fixtures/projects.yml test/fixtures/replies.yml test/fixtures/reply.rb test/fixtures/schema.rb test/fixtures/topic.rb test/fixtures/topics.yml test/fixtures/user.rb test/fixtures/users.yml test/helper.rb test/lib test/lib/activerecord_test_case.rb test/lib/activerecord_test_connector.rb test/lib/load_fixtures.rb test/lib/view_test_process.rb test/tasks.rake test/view_test.rb)
+  s.files = Dir['Rakefile', '{bin,lib,test,spec}/**/*', 'README*', 'LICENSE*']
+
+  # include only files in version control
+  git_dir = File.expand_path('../.git', __FILE__)
+  void = defined?(File::NULL) ? File::NULL :
+    RbConfig::CONFIG['host_os'] =~ /msdos|mswin|djgpp|mingw/ ? 'NUL' : '/dev/null'
+
+  if File.directory?(git_dir) and system "git --version >>#{void} 2>&1"
+    s.files &= `git --git-dir='#{git_dir}' ls-files -z`.split("\0") 
+  end
 end

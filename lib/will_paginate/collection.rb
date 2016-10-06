@@ -1,27 +1,39 @@
+require 'will_paginate/per_page'
+require 'will_paginate/page_number'
+
 module WillPaginate
-  # = Invalid page number error
-  # This is an ArgumentError raised in case a page was requested that is either
-  # zero or negative number. You should decide how do deal with such errors in
-  # the controller.
+  # Any will_paginate-compatible collection should have these methods:
   #
-  # If you're using Rails 2, then this error will automatically get handled like
-  # 404 Not Found. The hook is in "will_paginate.rb":
+  #   current_page, per_page, offset, total_entries, total_pages
   #
-  #   ActionController::Base.rescue_responses['WillPaginate::InvalidPage'] = :not_found
+  # It can also define some of these optional methods:
   #
-  # If you don't like this, use your preffered method of rescuing exceptions in
-  # public from your controllers to handle this differently. The +rescue_from+
-  # method is a nice addition to Rails 2.
+  #   out_of_bounds?, previous_page, next_page
   #
-  # This error is *not* raised when a page further than the last page is
-  # requested. Use <tt>WillPaginate::Collection#out_of_bounds?</tt> method to
-  # check for those cases and manually deal with them as you see fit.
-  class InvalidPage < ArgumentError
-    def initialize(page, page_num)
-      super "#{page.inspect} given as value, which translates to '#{page_num}' as page number"
+  # This module provides few of these methods.
+  module CollectionMethods
+    def total_pages
+      total_entries.zero? ? 1 : (total_entries / per_page.to_f).ceil
+    end
+
+    # current_page - 1 or nil if there is no previous page
+    def previous_page
+      current_page > 1 ? (current_page - 1) : nil
+    end
+
+    # current_page + 1 or nil if there is no next page
+    def next_page
+      current_page < total_pages ? (current_page + 1) : nil
+    end
+
+    # Helper method that is true when someone tries to fetch a page with a
+    # larger number than the last page. Can be used in combination with flashes
+    # and redirecting.
+    def out_of_bounds?
+      current_page > total_pages
     end
   end
-  
+
   # = The key to pagination
   # Arrays returned from paginating finds are, in fact, instances of this little
   # class. You may think of WillPaginate::Collection as an ordinary array with
@@ -33,25 +45,22 @@ module WillPaginate
   # 
   # If you are writing a library that provides a collection which you would like
   # to conform to this API, you don't have to copy these methods over; simply
-  # make your plugin/gem dependant on the "mislav-will_paginate" gem:
+  # make your plugin/gem dependant on this library and do:
   #
-  #   gem 'mislav-will_paginate'
   #   require 'will_paginate/collection'
-  #   
   #   # WillPaginate::Collection is now available for use
   class Collection < Array
-    attr_reader :current_page, :per_page, :total_entries, :total_pages
+    include CollectionMethods
+
+    attr_reader :current_page, :per_page, :total_entries
 
     # Arguments to the constructor are the current page number, per-page limit
     # and the total number of entries. The last argument is optional because it
     # is best to do lazy counting; in other words, count *conditionally* after
     # populating the collection using the +replace+ method.
-    def initialize(page, per_page, total = nil)
-      @current_page = page.to_i
-      raise InvalidPage.new(page, @current_page) if @current_page < 1
+    def initialize(page, per_page = WillPaginate.per_page, total = nil)
+      @current_page = WillPaginate::PageNumber(page)
       @per_page = per_page.to_i
-      raise ArgumentError, "`per_page` setting cannot be less than 1 (#{@per_page} given)" if @per_page < 1
-      
       self.total_entries = total if total
     end
 
@@ -82,17 +91,10 @@ module WillPaginate
     #
     # The Array#paginate API has since then changed, but this still serves as a
     # fine example of WillPaginate::Collection usage.
-    def self.create(page, per_page, total = nil, &block)
+    def self.create(page, per_page, total = nil)
       pager = new(page, per_page, total)
       yield pager
       pager
-    end
-
-    # Helper method that is true when someone tries to fetch a page with a
-    # larger number than the last page. Can be used in combination with flashes
-    # and redirecting.
-    def out_of_bounds?
-      current_page > total_pages
     end
 
     # Current offset of the paginated collection. If we're on the first page,
@@ -100,23 +102,11 @@ module WillPaginate
     # the offset is 30. This property is useful if you want to render ordinals
     # side by side with records in the view: simply start with offset + 1.
     def offset
-      (current_page - 1) * per_page
+      current_page.to_offset(per_page).to_i
     end
 
-    # current_page - 1 or nil if there is no previous page
-    def previous_page
-      current_page > 1 ? (current_page - 1) : nil
-    end
-
-    # current_page + 1 or nil if there is no next page
-    def next_page
-      current_page < total_pages ? (current_page + 1) : nil
-    end
-    
-    # sets the <tt>total_entries</tt> property and calculates <tt>total_pages</tt>
     def total_entries=(number)
       @total_entries = number.to_i
-      @total_pages   = (@total_entries / per_page.to_f).ceil
     end
 
     # This is a magic wrapper for the original Array#replace method. It serves

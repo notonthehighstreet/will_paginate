@@ -1,4 +1,9 @@
-/doc
-/rails
+Gemfile*.lock
+.bundle
+doc
 *.gem
-/coverage
+coverage
+/bin
+vendor/bundle
+tags
+.ruby-version

@@ -1,7 +1,8 @@
 require 'set'
-require 'will_paginate/array'
 
-unless Hash.instance_methods.include? 'except'
+# copied from ActiveSupport so we don't depend on it
+
+unless Hash.method_defined? :except
   Hash.class_eval do
     # Returns a new hash without the given keys.
     def except(*keys)
@@ -16,17 +17,14 @@ unless Hash.instance_methods.include? 'except'
   end
 end
 
-unless Hash.instance_methods.include? 'slice'
-  Hash.class_eval do
-    # Returns a new hash with only the given keys.
-    def slice(*keys)
-      allowed = Set.new(respond_to?(:convert_key) ? keys.map { |key| convert_key(key) } : keys)
-      reject { |key,| !allowed.include?(key) }
-    end
-
-    # Replaces the hash with only the given keys.
-    def slice!(*keys)
-      replace(slice(*keys))
+unless String.method_defined? :underscore
+  String.class_eval do
+    def underscore
+      self.to_s.gsub(/::/, '/').
+        gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
+        gsub(/([a-z\d])([A-Z])/,'\1_\2').
+        tr("-", "_").
+        downcase
     end
   end
 end
