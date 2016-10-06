@@ -128,7 +128,7 @@ module WillPaginate
       output << link % ['next'.freeze,
         url_for(params.merge(page: collection.next_page, only_path: false))
         ] if collection.next_page
-      output.join('\n'.freeze).html_safe
+      output.join.html_safe
     end
 
     # Renders a message containing number of displayed vs. total entries.
