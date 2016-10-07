@@ -256,6 +256,26 @@ describe WillPaginate::ActionView do
     end
   end
 
+  context "exclude_param_on_first_page option is true" do
+    it "should exclude the page parameter for the first page" do
+      paginate({ :page => 2 }, :param_name => :developers_page, :exclude_param_on_first_page => true) do
+        assert_select 'a[href]', 4 do |elements|
+          validate_page_numbers [nil,nil,3,3], elements, :developers_page
+        end
+      end
+    end
+  end
+
+  context "exclude_param_on_first_page option is false by default" do
+    it "should include the page parameter for the first page" do
+      paginate({ :page => 2 }, :param_name => :developers_page) do
+        assert_select 'a[href]', 4 do |elements|
+          validate_page_numbers [1,1,3,3], elements, :developers_page
+        end
+      end
+    end
+  end
+
   it "should paginate with custom route page parameter" do
     request.symbolized_path_parameters.update :controller => 'dummy', :action => 'index'
     paginate :per_page => 2 do
