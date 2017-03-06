@@ -352,10 +352,8 @@ describe WillPaginate::ActionView do
 
     context 'the middle page' do
       subject { helper.pagination_link_tags page_two }
-      it { should include(
-        '<link rel="prev" href="http://example.com/dummy/page/1" />') }
-      it { should include(
-        '<link rel="next" href="http://example.com/dummy/page/3" />') }
+      it { should include('<link rel="prev" href="http://example.com/dummy" />') }
+      it { should include('<link rel="next" href="http://example.com/dummy/page/3" />') }
     end
 
     context 'the last page' do
