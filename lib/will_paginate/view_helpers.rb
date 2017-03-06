@@ -123,9 +123,14 @@ module WillPaginate
     def pagination_link_tags(collection, params = {})
       output = []
       link = '<link rel="%s" href="%s" />'.freeze
-      output << link % ['prev'.freeze,
-        url_for(params.merge(page: collection.previous_page, only_path: false)
-        )] if collection.previous_page
+      if collection.previous_page
+        if collection.previous_page == 1
+          output << link % ['prev'.freeze, url_for(params.merge(only_path: false))]
+        else
+          output << link % ['prev'.freeze, url_for(params.merge(page: collection.previous_page, only_path: false))]
+        end
+      end
+
       output << link % ['next'.freeze,
         url_for(params.merge(page: collection.next_page, only_path: false))
         ] if collection.next_page
