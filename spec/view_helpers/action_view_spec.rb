@@ -80,11 +80,11 @@ describe WillPaginate::ActionView do
         validate_page_numbers [1,1,3,3], elements
         # test rel attribute values:
         text(elements[0]).should == 'Prev'
-        elements[0]['rel'].should == 'prev start'
+        elements[0]['rel'].should == nil
         text(elements[1]).should == '1'
-        elements[1]['rel'].should == 'prev start'
+        elements[1]['rel'].should == nil
         text(elements[3]).should == 'Next'
-        elements[3]['rel'].should == 'next'
+        elements[3]['rel'].should == nil
       end
       assert_select '.current', '2'
     end
@@ -383,7 +383,7 @@ describe WillPaginate::ActionView do
 
     paginate do |pagination|
       assert_select 'span.disabled:first-child', 'Go back'
-      assert_select 'a[rel=next]', 'Load more'
+      assert_select 'a', 'Load more'
     end
   end
 

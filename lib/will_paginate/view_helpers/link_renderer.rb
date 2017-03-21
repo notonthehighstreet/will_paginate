@@ -88,8 +88,8 @@ module WillPaginate
       end
 
       def link(text, target, attributes = {})
+        attributes[:rel] = nil if attributes[:rel]
         if target.is_a? Fixnum
-          attributes[:rel] = rel_value(target)
           target = url(target)
         end
         attributes[:href] = target
