@@ -49,8 +49,7 @@ module WillPaginate
       end
       
       def gap
-        text = @template.will_paginate_translate(:page_gap) { '&hellip;' }
-        %(<span class="gap">#{text}</span>)
+        %(<span class="gap">&hellip;</span>)
       end
       
       def previous_page
