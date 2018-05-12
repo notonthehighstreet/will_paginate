@@ -18,7 +18,7 @@ gem 'mongoid'
 
 group :mysql do
   gem 'mysql', '~> 2.9'
-  gem 'mysql2', '~> 0.3.10'
+  gem 'mysql2', '~> 0.5.1'
 end
 gem 'pg', '~> 0.11', :group => :pg
 
