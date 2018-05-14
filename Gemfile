@@ -6,7 +6,7 @@ gem 'activerecord', rails_version
 gem 'actionpack',   rails_version
 
 gem 'rspec', '~> 2.6.0'
-gem 'mocha', '~> 0.9.8'
+gem 'mocha', '~> 1.5.0'
 
 gem 'sqlite3', '~> 1.3.6'
 gem 'sequel', '~> 3.8'
